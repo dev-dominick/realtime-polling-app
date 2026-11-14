@@ -52,7 +52,6 @@ export function PollForm() {
     const trimmedQuestion = question.trim();
     const trimmedOptions = options.map((o) => o.value.trim()).filter(Boolean);
 
-    // Validate using schema
     const result = createPollSchema.safeParse({
       question: trimmedQuestion,
       options: trimmedOptions,
@@ -91,7 +90,7 @@ export function PollForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="rounded-md border border-(--error)/40 bg-(--error-muted) p-3 text-sm text-(--error)">
+        <div className="rounded-xl border border-(--error)/40 bg-(--error-muted) p-3 text-sm text-(--error)">
           {error}
         </div>
       )}
@@ -151,13 +150,13 @@ export function PollForm() {
           aria-label="Add option"
           className="w-full"
         >
-          <Plus className="h-4 w-4 mr-1" />
-          Add Option
+          <Plus className="mr-1 h-4 w-4" />
+          Add option
         </Button>
       </div>
 
       <Button type="submit" disabled={submitting} className="w-full">
-        {submitting ? "Creating..." : "Create Poll"}
+        {submitting ? "Creating..." : "Create poll"}
       </Button>
     </form>
   );

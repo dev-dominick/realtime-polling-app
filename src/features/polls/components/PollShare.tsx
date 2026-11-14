@@ -34,7 +34,6 @@ export function PollShare({ pollId }: PollShareProps) {
       setCopied(true);
       resetAfterDelay(setCopied);
     } catch {
-      // Fallback for older browsers or denied clipboard permission
       try {
         const input = inputRef.current;
         if (input) {
@@ -60,7 +59,7 @@ export function PollShare({ pollId }: PollShareProps) {
         type="text"
         readOnly
         value={url}
-        className="min-w-0 flex-1 truncate px-3 py-2 rounded-md border border-(--border-subtle) bg-(--surface-raised) text-(--text-primary) text-sm font-mono"
+        className="min-w-0 flex-1 truncate rounded-xl border border-(--border-default) bg-(--surface-raised) px-3 py-2.5 text-sm font-mono text-(--text-primary) shadow-(--shadow-sm) outline-none focus:border-(--accent) focus:ring-2 focus:ring-(--accent)/35"
       />
       <Button
         onClick={handleCopy}

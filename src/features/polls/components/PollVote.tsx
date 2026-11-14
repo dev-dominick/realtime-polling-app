@@ -50,12 +50,12 @@ export function PollVote({ pollId, options, onVoted }: PollVoteProps) {
   return (
     <div className="space-y-4">
       {error && (
-        <div className="rounded-md border border-(--error)/40 bg-(--error-muted) p-3 text-sm text-(--error)">
+        <div className="rounded-xl border border-(--error)/40 bg-(--error-muted) p-3 text-sm text-(--error)">
           {error}
         </div>
       )}
 
-      <fieldset className="space-y-2" aria-label="Poll options">
+      <fieldset className="space-y-3" aria-label="Poll options">
         <legend className="sr-only">Select one option and submit your vote</legend>
         {options.map((option) => (
           <button
@@ -64,13 +64,20 @@ export function PollVote({ pollId, options, onVoted }: PollVoteProps) {
             onClick={() => setSelected(option.id)}
             disabled={submitting}
             aria-pressed={selected === option.id}
-            className={`w-full p-3 rounded-md border-2 transition-colors text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent) focus-visible:ring-offset-2 focus-visible:ring-offset-(--surface-base) ${
+            className={`w-full rounded-xl border p-3 text-left transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent) focus-visible:ring-offset-2 focus-visible:ring-offset-(--surface-base) ${
               selected === option.id
-                ? "border-(--accent) bg-(--accent) bg-opacity-10"
-                : "border-(--border-subtle) hover:border-(--accent)"
+                ? "border-(--accent) bg-(--accent)/10 shadow-(--shadow-sm)"
+                : "border-(--border-subtle) bg-(--surface-raised)/60 hover:border-(--border-strong) hover:bg-(--surface-raised)"
             }`}
           >
-            <span className="font-medium">{option.label}</span>
+            <span className="flex items-center justify-between gap-3">
+              <span className="font-medium text-(--text-primary)">{option.label}</span>
+              {selected === option.id ? (
+                <span className="rounded-full border border-(--accent) bg-(--accent)/15 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-(--accent)">
+                  Selected
+                </span>
+              ) : null}
+            </span>
           </button>
         ))}
       </fieldset>

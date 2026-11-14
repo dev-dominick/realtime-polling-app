@@ -12,10 +12,8 @@ export default function PollDetailPage() {
   const [hasVoted, setHasVoted] = useState(false);
   const pollsHref = "/projects/polls";
 
-  // Fetch initial poll data
   const { poll, loading, error, setPoll } = usePoll(pollId);
 
-  // Handle SSE updates - callback to update poll state with new results
   const handlePollUpdate = useCallback(
     (data: { totalVotes: number; options: PollData["options"] }) => {
       setPoll((prev) =>
@@ -25,12 +23,10 @@ export default function PollDetailPage() {
     [setPoll],
   );
 
-  // Subscribe to poll results as soon as poll details are loaded.
   const { liveStatus, lastUpdatedAt } = usePollResults(pollId, Boolean(pollId), handlePollUpdate);
 
   const handleVoted = useCallback(() => {
     setHasVoted(true);
-    // Refetch to see updated results immediately
     if (pollId) {
       fetch(`/api/projects/polls/${pollId}`)
         .then((res) => {
@@ -39,7 +35,7 @@ export default function PollDetailPage() {
         })
         .then((data) => setPoll(data))
         .catch(() => {
-          // Results will update via SSE; no action needed
+          // Results will update via SSE; no action needed.
         });
     }
   }, [pollId, setPoll]);
@@ -54,9 +50,9 @@ export default function PollDetailPage() {
 
   if (error || !poll) {
     return (
-      <div className="text-center py-20">
-        <p className="text-(--text-secondary) mb-4">{error || "Poll not found."}</p>
-        <Link href={pollsHref} className="text-sm text-(--accent) hover:underline">
+      <div className="panel-shell rounded-2xl p-8 text-center">
+        <p className="mb-4 text-(--text-secondary)">{error || "Poll not found."}</p>
+        <Link href={pollsHref} className="text-sm font-medium text-(--accent) hover:underline">
           Create a new poll
         </Link>
       </div>
@@ -64,50 +60,75 @@ export default function PollDetailPage() {
   }
 
   return (
-    <>
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight text-(--text-primary) sm:text-3xl">
-          {poll.question}
-        </h1>
-        <div className="w-full sm:max-w-md">
-          <PollShare pollId={poll.id} />
+    <div className="space-y-6">
+      <header className="panel-shell rounded-2xl p-5 sm:p-7">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="max-w-2xl">
+            <p className="eyebrow">Poll</p>
+            <h1 className="mt-3 text-2xl font-semibold tracking-tight text-(--text-primary) sm:text-3xl">
+              {poll.question}
+            </h1>
+          </div>
+
+          <div className="w-full max-w-md">
+            <PollShare pollId={poll.id} />
+          </div>
         </div>
-      </div>
+
+        <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          <div className="panel-surface rounded-xl p-3">
+            <p className="text-[11px] uppercase tracking-[0.12em] text-(--text-muted)">Status</p>
+            <div className="mt-2 flex items-center gap-2">
+              <span className="status-dot" />
+              <span className="text-sm font-medium text-(--text-primary)">{liveStatus === "paused" ? "Paused" : "Live"}</span>
+            </div>
+          </div>
+          <div className="panel-surface rounded-xl p-3">
+            <p className="text-[11px] uppercase tracking-[0.12em] text-(--text-muted)">Responses</p>
+            <p className="mt-2 text-lg font-semibold text-(--text-primary)">{poll.totalVotes}</p>
+          </div>
+          <div className="panel-surface rounded-xl p-3">
+            <p className="text-[11px] uppercase tracking-[0.12em] text-(--text-muted)">Updated</p>
+            <p className="mt-2 text-sm font-medium text-(--text-secondary)">
+              {lastUpdatedAt ? new Date(lastUpdatedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "Awaiting first result"}
+            </p>
+          </div>
+        </div>
+      </header>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <section className="space-y-3 rounded-lg border border-(--border-subtle) bg-(--surface-overlay) p-4">
-          <h2 className="text-sm font-semibold uppercase tracking-[0.08em] text-(--text-secondary)">
-            Vote
-          </h2>
+        <section className="panel-surface rounded-2xl p-4 sm:p-6">
+          <div className="mb-4 flex items-center justify-between gap-2">
+            <h2 className="text-lg font-semibold text-(--text-primary)">Vote</h2>
+            <span className="status-pill">Select one</span>
+          </div>
           <PollVote pollId={poll.id} options={poll.options} onVoted={handleVoted} />
           {hasVoted ? (
-            <p className="text-xs text-(--text-muted)">
+            <p className="mt-4 text-sm text-(--text-secondary)">
               Vote recorded. Results continue updating live.
             </p>
           ) : null}
         </section>
 
-        <section className="space-y-3 rounded-lg border border-(--border-subtle) bg-(--surface-overlay) p-4">
-          <h2 className="text-sm font-semibold uppercase tracking-[0.08em] text-(--text-secondary)">
-            Live results
-          </h2>
+        <section className="panel-surface rounded-2xl p-4 sm:p-6">
+          <div className="mb-4 flex items-center justify-between gap-2">
+            <h2 className="text-lg font-semibold text-(--text-primary)">Live results</h2>
+            <span className="status-pill">{liveStatus === "connected" ? "Connected" : liveStatus === "paused" ? "Paused" : "Refreshing"}</span>
+          </div>
           <PollResults
             options={poll.options}
             totalVotes={poll.totalVotes}
             liveStatus={liveStatus}
             lastUpdatedAt={lastUpdatedAt}
           />
-          <p className="text-xs text-(--text-muted)">
-            Live result refresh is server-streamed using SSE snapshots.
-          </p>
         </section>
       </div>
 
-      <div className="mt-8 pt-6 border-t border-(--border-subtle)">
-        <Link href={pollsHref} className="text-sm text-(--accent) hover:underline">
-          Back to polls
+      <div className="pt-2">
+        <Link href={pollsHref} className="inline-flex items-center text-sm font-medium text-(--accent) hover:underline">
+          ← Back to polls
         </Link>
       </div>
-    </>
+    </div>
   );
 }
