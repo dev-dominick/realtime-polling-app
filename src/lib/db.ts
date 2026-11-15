@@ -18,10 +18,11 @@ export function getDb(): DbClient {
     throw new Error("DATABASE_URL is not configured");
   }
 
-  const ssl =
-    process.env.DB_SSL_REQUIRE?.trim().toLowerCase() === "true"
-      ? "require"
-      : false;
+  const sslRequire = process.env.DB_SSL_REQUIRE?.trim().toLowerCase();
+  const sslFromUrl = /[?&]sslmode=require(?:&|$)/i.test(url);
+  const ssl = sslRequire === "true" || sslRequire === "require" || (!sslRequire && sslFromUrl)
+    ? "require"
+    : false;
 
   db = postgres(url, {
     ssl,
